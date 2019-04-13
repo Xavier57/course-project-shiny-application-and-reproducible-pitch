@@ -1,0 +1,74 @@
+mni_app
+========================================================
+author: Xavier Chapelant
+date: 13 April 2019
+autosize: true
+
+Presentation of the MNI app
+========================================================
+
+This apps allows you to get the number of national implementing measures (MNI) for each EU country and for a given selected year. MNIs are legal acts transposing a european directive.
+
+- you can select the year from the slide bar in the left part of the page
+- a plot gets automatically generated for that year on the right part of the page
+- years between 1900 and 2019 can be selected
+
+Slide With Code (ui.r)
+========================================================
+
+
+```r
+library(shiny)
+shinyUI(fluidPage(
+  titlePanel("National implementing measures per year and country"),
+  sidebarLayout(
+    sidebarPanel(
+      h3("Move the bar to select the year"),
+      sliderInput("slider1", "Slide Me!", 1900, 2019, 2019)),
+    mainPanel(plotOutput("plot1", brush = brushOpts(
+        id = "brush1"))))))
+```
+
+<!--html_preserve--><div class="container-fluid">
+<h2>National implementing measures per year and country</h2>
+<div class="row">
+<div class="col-sm-4">
+<form class="well">
+<h3>Move the bar to select the year</h3>
+<div class="form-group shiny-input-container">
+<label class="control-label" for="slider1">Slide Me!</label>
+<input class="js-range-slider" id="slider1" data-min="1900" data-max="2019" data-from="2019" data-step="1" data-grid="true" data-grid-num="9.91666666666667" data-grid-snap="false" data-prettify-separator="," data-prettify-enabled="true" data-keyboard="true" data-data-type="number"/>
+</div>
+</form>
+</div>
+<div class="col-sm-8">
+<div id="plot1" class="shiny-plot-output" style="width: 100% ; height: 400px" data-brush-id="brush1" data-brush-fill="#9cf" data-brush-stroke="#036" data-brush-opacity="0.25" data-brush-delay="300" data-brush-delay-type="debounce" data-brush-clip="TRUE" data-brush-direction="xy" data-brush-reset-on-new="FALSE"></div>
+</div>
+</div>
+</div><!--/html_preserve-->
+
+Slide With Code (server.r)
+========================================================
+
+
+```r
+library(shiny)
+library(plotly)
+library(dplyr)
+shinyServer(function(input, output) {
+  output$plot1 <- renderPlot({
+    yearInput <- "2019"
+    yearInput <- input$slider1
+    mydata <- read.csv("sparql.csv") 
+    mydata2<-filter(mydata, as.numeric(year) ==as.numeric(yearInput))
+       plot(mydata2$country, mydata2$countMNI, cex = 1.5, pch = 2, bty = "n", las=2, type="b", bg="blue", col="red")
+       title(xlab="Country", adj = 0.5, line=4)
+       title(ylab="Number of measures", adj = 0.5, line=3)
+       title(main=sprintf( "National implementing measures for year ", toString(yearInput),"..."), col.main="blue", adj = 0) 
+       title(main=toString(yearInput), col.main="blue", adj = 0.6) })})
+```
+
+Slide With Plot
+========================================================
+
+![plot of chunk unnamed-chunk-3](mni_app-figure/unnamed-chunk-3-1.png)
